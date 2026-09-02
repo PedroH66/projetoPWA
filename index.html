@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LOJA DO MAGO DOS GAMES</title>
+    <style>
+        :root {
+            --bg-dark: #080c1e;
+            --card-bg: #101935;
+            --primary: #5a189a;
+            --primary-blue: #3a86ff;
+            --accent: #00f5d4;
+            --text-light: #f8f9fa;
+            --glow: 0 0 15px rgba(58, 134, 255, 0.6);
+            --danger: #ff4d4d;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-light); }
+
+        /* Header e Navegação */
+        header {
+            background: rgba(8, 12, 30, 0.95);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--primary-blue);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: bold; color: var(--accent); text-shadow: 0 0 10px rgba(0, 245, 212, 0.5); cursor: pointer; }
+        nav { display: flex; align-items: center; }
+        nav a { color: var(--text-light); text-decoration: none; margin-left: 1.5rem; transition: color 0.3s; cursor: pointer; }
+        nav a:hover, nav a.active { color: var(--accent); }
+
+        /* Estilo Geral de Telas */
+        .page-section { display: none; padding: 2rem 1rem; max-width: 1200px; margin: 0 auto; min-height: 80vh; }
+        .page-section.active { display: block; }
+
+        /* Botões */
+        .btn-magico {
+            background: linear-gradient(45deg, var(--primary-blue), #4361ee);
+            color: white; border: none; padding: 0.8rem 1.2rem; font-size: 0.9rem;
+            font-weight: bold; border-radius: 25px; cursor: pointer;
+            box-shadow: var(--glow); transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn-magico:hover { transform: scale(1.05); box-shadow: 0 0 25px rgba(58, 134, 255, 0.9); }
+        .btn-remove {
+            background: transparent; border: 1px solid var(--danger); color: var(--danger);
+            padding: 0.4rem 0.8rem; border-radius: 6px; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-remove:hover { background: var(--danger); color: white; }
+
+        .btn-wishlist {
+            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--primary-blue);
+            color: white; border-radius: 50%; width: 38px; height: 38px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; cursor: pointer; transition: all 0.2s;
+        }
+        .btn-wishlist:hover, .btn-wishlist.active {
+            background: rgba(255, 77, 77, 0.2); border-color: var(--danger); color: var(--danger);
+        }
+
+        .section-title { font-size: 1.8rem; margin-bottom: 2rem; color: var(--accent); border-left: 4px solid var(--primary-blue); padding-left: 10px; }
+
+        /* Grid de Jogos */
+        .grid-jogos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 2rem; }
+        .card-jogo { background-color: var(--card-bg); border-radius: 12px; overflow: hidden; border: 1px solid rgba(58, 134, 255, 0.2); display: flex; flex-direction: column; position: relative; }
+        .card-img { height: 160px; background-size: cover; background-position: center; }
+        .card-content { padding: 1.2rem; display: flex; flex-direction: column; flex-grow: 1; }
+        .card-title { font-size: 1.2rem; margin-bottom: 0.5rem; }
+        .card-desc { font-size: 0.85rem; color: #a0aab2; margin-bottom: 1rem; flex-grow: 1; }
+        .card-footer { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+        .price { font-size: 1.1rem; font-weight: bold; color: var(--accent); }
+        .old-price { text-decoration: line-through; color: #888; font-size: 0.85rem; margin-right: 5px; }
+
+        /* Filtros */
+        .filter-container { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .search-input, .filter-select {
+            background: var(--card-bg); border: 1px solid var(--primary-blue); color: white;
+            padding: 0.8rem 1rem; border-radius: 8px; outline: none;
+        }
+        .search-input { flex-grow: 1; }
+
+        /* Tabela */
+        .cart-table { width: 100%; border-collapse: collapse; margin-bottom: 2rem; }
+        .cart-table th, .cart-table td { padding: 1rem; text-align: left; border-bottom: 1px solid rgba(58, 134, 255, 0.2); }
+        .cart-table th { color: var(--accent); }
+        .cart-summary { background: var(--card-bg); padding: 1.5rem; border-radius: 12px; border: 1px solid var(--primary-blue); text-align: right; }
+        .empty-cart-msg { text-align: center; padding: 3rem; color: #a0aab2; font-size: 1.2rem; width: 100%; grid-column: 1 / -1; }
+
+        /* Banner Hero */
+        .hero { text-align: center; padding: 3rem 1rem; background: radial-gradient(circle, rgba(58, 134, 255, 0.2) 0%, rgba(8, 12, 30, 1) 80%); margin-bottom: 2rem; }
+
+        footer { text-align: center; padding: 2rem; background-color: #04060f; border-top: 1px solid rgba(58, 134, 255, 0.2); margin-top: 4rem; color: #6c757d; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo" onclick="navegar('home')">🔮 MAGO DOS GAMES</div>
+        <nav>
+            <a id="nav-home" class="active" onclick="navegar('home')">Grimório</a>
+            <a id="nav-jogos" onclick="navegar('jogos')">Pergaminhos</a>
+            <a id="nav-ofertas" onclick="navegar('ofertas')">Poções</a>
+            <a id="nav-desejos" onclick="navegar('desejos')">Desejos ❤️ <span id="wishlist-count">0</span></a>
+            <a id="nav-carrinho" onclick="navegar('carrinho')">Carrinho 🛒 <span id="cart-count">0</span></a>
+        </nav>
+    </header>
+
+    <section id="home" class="page-section active">
+        <div class="hero">
+            <h1>Invoque Seus Jogos Favoritos</h1>
+            <p>Chaves digitais e feitiços virtuais com os menores preços do reino!</p>
+            <button class="btn-magico" style="margin-top: 15px;" onclick="navegar('ofertas')">Ver Ofertas Épicas</button>
+        </div>
+        <h2 class="section-title">Relíquias Mais Populares</h2>
+        <div class="grid-jogos" id="grid-home">
+            </div>
+    </section>
+
+    <section id="jogos" class="page-section">
+        <h2 class="section-title">Biblioteca de Feitiços & Jogos</h2>
+        <div class="filter-container">
+            <input type="text" id="search-input" class="search-input" placeholder="Buscar jogo pelo nome..." oninput="filtrarJogos()">
+            <select id="filter-select" class="filter-select" onchange="filtrarJogos()">
+                <option value="Todas">Todas as Plataformas</option>
+                <option value="PC">PC</option>
+                <option value="PlayStation 5">PlayStation 5</option>
+                <option value="Xbox Series X">Xbox Series X</option>
+            </select>
+        </div>
+        <div class="grid-jogos" id="grid-pergaminhos">
+            </div>
+    </section>
+
+    <section id="ofertas" class="page-section">
+        <h2 class="section-title">Poções com Desconto</h2>
+        <div class="grid-jogos" id="grid-ofertas">
+            </div>
+    </section>
+
+    <section id="desejos" class="page-section">
+        <h2 class="section-title">Lista de Anseios (Desejos)</h2>
+        <div id="desejos-conteudo" class="grid-jogos">
+            </div>
+    </section>
+
+    <section id="carrinho" class="page-section">
+        <h2 class="section-title">Carrinho de Alquimia</h2>
+        <div id="carrinho-conteudo"></div>
+        <div id="carrinho-resumo" class="cart-summary" style="display: none;">
+            <h3>Total do Caldeirão: <span style="color: var(--accent);" id="cart-total">R$ 0,00</span></h3><br>
+            <button class="btn-magico" onclick="finalizarCompra()">Finalizar Invocação</button>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2026 Loja do Mago dos Games. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        const catalogo = [
+            { id: 1, nome: "Grand Theft Auto VI", desc: "Garanta a pré-venda do capítulo mais aguardado no estado de Leonida.", preco: 349.90, precoAntigo: null, plataforma: "PlayStation 5", img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=500&q=80", popular: true, oferta: false },
+            { id: 2, nome: "Elden Ring", desc: "Desbrave as Terras Intermédias e reivindique o Anel Prístino.", preco: 229.90, precoAntigo: null, plataforma: "PC", img: "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=500&q=80", popular: true, oferta: false },
+            { id: 3, nome: "Cyberpunk 2077", desc: "Ação e aventura em mundo aberto na futurista Night City.", preco: 119.90, precoAntigo: null, plataforma: "PC", img: "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=500&q=80", popular: true, oferta: false },
+            { id: 4, nome: "Hogwarts Legacy", desc: "Explore o mundo bruxo do século XIX.", preco: 199.90, precoAntigo: null, plataforma: "PlayStation 5", img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=500&q=80", popular: false, oferta: false },
+            { id: 5, nome: "The Witcher 3", desc: "Cace monstros em um mundo devastado pela guerra.", preco: 49.90, precoAntigo: null, plataforma: "PC", img: "https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?auto=format&fit=crop&w=500&q=80", popular: false, oferta: false },
+            { id: 6, nome: "Baldur's Gate 3", desc: "Forje seu destino em uma aventura épica nos reinos esquecidos.", preco: 199.99, precoAntigo: null, plataforma: "PC", img: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=500&q=80", popular: false, oferta: false },
+            { id: 7, nome: "God of War Ragnarök", desc: "Embarque em uma jornada épica com Kratos e Atreus pelos nove reinos.", preco: 249.90, precoAntigo: null, plataforma: "PlayStation 5", img: "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=500&q=80", popular: false, oferta: false },
+            { id: 8, nome: "Starfield", desc: "Explore as estrelas em uma jornada incomparável no espaço sideral.", preco: 299.00, precoAntigo: null, plataforma: "Xbox Series X", img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=500&q=80", popular: false, oferta: false },
+            { id: 9, nome: "Doom Eternal", desc: "Desconto especial no massacre de demônios!", preco: 70.00, precoAntigo: 140.00, plataforma: "Xbox Series X", img: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=500&q=80", popular: false, oferta: true },
+            { id: 10, nome: "Resident Evil 4", desc: "Sobreviva ao pesadelo totalmente reconstruído do zero.", preco: 149.40, precoAntigo: 249.00, plataforma: "PC", img: "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=500&q=80", popular: false, oferta: true },
+            { id: 11, nome: "Grand Theft Auto V", desc: "O clássico de mundo aberto com um preço imperdível.", preco: 59.90, precoAntigo: 120.00, plataforma: "PC", img: "https://images.unsplash.com/photo-1534423861386-85a16f5d13fd?auto=format&fit=crop&w=500&q=80", popular: false, oferta: true }
+        ];
+
+        let carrinho = [];
+        let desejos = [];
+
+        function navegar(paginaId) {
+            document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('nav a').forEach(link => link.classList.remove('active'));
+            
+            document.getElementById(paginaId).classList.add('active');
+            document.getElementById('nav-' + paginaId).classList.add('active');
+            window.scrollTo(0, 0);
+
+            if(paginaId === 'jogos') filtrarJogos();
+            if(paginaId === 'home') renderizarHome();
+            if(paginaId === 'ofertas') renderizarOfertas();
+            if(paginaId === 'desejos') renderizarDesejos();
+            if(paginaId === 'carrinho') renderizarCarrinho();
+        }
+
+        // GERAR CARD HTML
+        function criarCardHTML(jogo) {
+            const naDesejos = desejos.includes(jogo.id);
+            return `
+                <div class="card-jogo">
+                    <div class="card-img" style="background-image: url('${jogo.img}');"></div>
+                    <div class="card-content">
+                        <h3 class="card-title">${jogo.nome}</h3>
+                        <p class="card-desc">${jogo.desc}</p>
+                        <div class="card-footer">
+                            <div>
+                                ${jogo.precoAntigo ? `<span class="old-price">R$ ${jogo.precoAntigo.toFixed(2).replace('.', ',')}</span>` : ''}
+                                <span class="price">R$ ${jogo.preco.toFixed(2).replace('.', ',')}</span>
+                            </div>
+                            <div style="display: flex; gap: 0.4rem;">
+                                <button class="btn-wishlist ${naDesejos ? 'active' : ''}" onclick="toggleDesejos(${jogo.id})" title="Adicionar aos Desejos">
+                                    ${naDesejos ? '❤️' : '🤍'}
+                                </button>
+                                <button class="btn-magico" onclick="adicionarAoCarrinho('${jogo.nome.replace("'", "\\'")}', ${jogo.preco}, '${jogo.plataforma}')">Conjurar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // RENDERIZAR SEÇÕES
+        function renderizarHome() {
+            document.getElementById('grid-home').innerHTML = catalogo.filter(j => j.popular).map(criarCardHTML).join('');
+        }
+
+        function renderizarOfertas() {
+            document.getElementById('grid-ofertas').innerHTML = catalogo.filter(j => j.oferta).map(criarCardHTML).join('');
+        }
+
+        function filtrarJogos() {
+            const textoBusca = document.getElementById('search-input').value.toLowerCase();
+            const plataformaSelec = document.getElementById('filter-select').value;
+            const containerGrid = document.getElementById('grid-pergaminhos');
+
+            const filtrados = catalogo.filter(j => {
+                const bateNome = j.nome.toLowerCase().includes(textoBusca);
+                const batePlat = plataformaSelec === "Todas" || j.plataforma === plataformaSelec;
+                return bateNome && batePlat;
+            });
+
+            if (filtrados.length === 0) {
+                containerGrid.innerHTML = `<div class="empty-cart-msg">Nenhum feitiço ou jogo encontrado para a busca. 🧙‍♂️</div>`;
+                return;
+            }
+            containerGrid.innerHTML = filtrados.map(criarCardHTML).join('');
+        }
+
+        function renderizarDesejos() {
+            const container = document.getElementById('desejos-conteudo');
+            if (desejos.length === 0) {
+                container.innerHTML = `<div class="empty-cart-msg">Sua lista de anseios está vazia. Clique no coração 🤍 dos jogos para guardar seus desejos!</div>`;
+                return;
+            }
+            const jogosDesejados = catalogo.filter(j => desejos.includes(j.id));
+            container.innerHTML = jogosDesejados.map(criarCardHTML).join('');
+        }
+
+        // GERENCIAR LISTA DE DESEJOS
+        function toggleDesejos(id) {
+            if (desejos.includes(id)) {
+                desejos = desejos.filter(item => item !== id);
+            } else {
+                desejos.push(id);
+            }
+            document.getElementById('wishlist-count').innerText = desejos.length;
+            
+            // Re-renderizar telas ativas
+            const abaAtiva = document.querySelector('.page-section.active').id;
+            if (abaAtiva === 'home') renderizarHome();
+            if (abaAtiva === 'jogos') filtrarJogos();
+            if (abaAtiva === 'ofertas') renderizarOfertas();
+            if (abaAtiva === 'desejos') renderizarDesejos();
+        }
+
+        // COMPORTAMENTO DO CARRINHO
+        function adicionarAoCarrinho(nome, preco, plataforma) {
+            carrinho.push({ id: Date.now() + Math.random(), nome, preco, plataforma });
+            atualizarContador();
+        }
+
+        function removerDoCarrinho(id) {
+            carrinho = carrinho.filter(item => item.id !== id);
+            atualizarContador();
+            renderizarCarrinho();
+        }
+
+        function atualizarContador() {
+            document.getElementById('cart-count').innerText = carrinho.length;
+        }
+
+        function renderizarCarrinho() {
+            const conteudodiv = document.getElementById('carrinho-conteudo');
+            const resumodiv = document.getElementById('carrinho-resumo');
+
+            if (carrinho.length === 0) {
+                conteudodiv.innerHTML = `<div class="empty-cart-msg">Seu caldeirão está vazio. Conjure alguns jogos primeiro! 🧙‍♂️</div>`;
+                resumodiv.style.display = 'none';
+                return;
+            }
+
+            let html = `<table class="cart-table"><thead><tr><th>Jogo</th><th>Plataforma</th><th>Preço</th><th>Ação</th></tr></thead><tbody>`;
+            let total = 0;
+
+            carrinho.forEach(item => {
+                total += item.preco;
+                html += `
+                    <tr>
+                        <td><strong>${item.nome}</strong></td>
+                        <td>${item.plataforma}</td>
+                        <td>R$ ${item.preco.toFixed(2).replace('.', ',')}</td>
+                        <td><button class="btn-remove" onclick="removerDoCarrinho(${item.id})">Desfazer Feitiço</button></td>
+                    </tr>
+                `;
+            });
+
+            html += `</tbody></table>`;
+            conteudodiv.innerHTML = html;
+            document.getElementById('cart-total').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+            resumodiv.style.display = 'block';
+        }
+
+        function finalizarCompra() {
+            carrinho = [];
+            atualizarContador();
+            renderizarCarrinho();
+        }
+
+        // RENDERIZAÇÃO INICIAL
+        renderizarHome();
+        filtrarJogos();
+    </script>
+</body>
+</html>
